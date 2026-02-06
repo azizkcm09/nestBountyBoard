@@ -1,30 +1,56 @@
-import { Controller, Get, Post, Patch, Param, Body, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Patch,
+  Param,
+  Body,
+  ParseIntPipe,
+} from '@nestjs/common';
+
 import { BountiesService } from './bounties.service';
 import { CreateBountyDto } from './dto/create-bounty.dto';
-import { HunterRankGuard } from '../auth/hunter-rank/hunter-rank.guard';
 
 @Controller('bounties')
 export class BountiesController {
   constructor(private readonly bountiesService: BountiesService) {}
 
-  @Get()
-  async findAll() {
-    return await this.bountiesService.findAll();
-  }
-
-  @Get(':id')
-  async findOne(@Param('id') id: string) {
-    return await this.bountiesService.findOne(Number(id));
-  }
-
+  // ─────────────────────────────────────────────
+  // CREATE BOUNTY
+  // POST /bounties
+  // ─────────────────────────────────────────────
   @Post()
-  async create(@Body() dto: CreateBountyDto) {
-    return await this.bountiesService.create(dto.target, dto.reward);
+  create(@Body() createBountyDto: CreateBountyDto) {
+    return this.bountiesService.create(createBountyDto);
   }
 
-  @UseGuards(HunterRankGuard)
-  @Patch(':id/claim')
-  async claim(@Param('id') id: string) {
-    return await this.bountiesService.updateStatus(Number(id));
+  // ─────────────────────────────────────────────
+  // GET ALL BOUNTIES
+  // GET /bounties
+  // ─────────────────────────────────────────────
+  @Get()
+  findAll() {
+    return this.bountiesService.findAll();
+  }
+
+  // ─────────────────────────────────────────────
+  // GET ONE BOUNTY
+  // GET /bounties/:id
+  // ─────────────────────────────────────────────
+  @Get(':id')
+  findOne(@Param('id', ParseIntPipe) id: number) {
+    return this.bountiesService.findOne(id);
+  }
+
+  // ─────────────────────────────────────────────
+  // UPDATE BOUNTY STATUS
+  // PATCH /bounties/:id/status
+  // ─────────────────────────────────────────────
+  @Patch(':id/status')
+  updateStatus(
+    @Param('id', ParseIntPipe) id: number,
+    @Body('status') status: string,
+  ) {
+    return this.bountiesService.updateStatus(id, status);
   }
 }

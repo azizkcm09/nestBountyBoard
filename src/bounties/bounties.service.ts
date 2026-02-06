@@ -1,38 +1,71 @@
-import { Injectable } from '@nestjs/common';
+import {
+  Injectable,
+  BadRequestException,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+
 import { Bounty } from './bounty.entity';
+import { Planet } from '../planets/planet.entity/planet.entity';
+import { CreateBountyDto } from './dto/create-bounty.dto';
 
 @Injectable()
 export class BountiesService {
   constructor(
     @InjectRepository(Bounty)
     private readonly bountyRepository: Repository<Bounty>,
+
+    @InjectRepository(Planet)
+    private readonly planetRepository: Repository<Planet>,
   ) {}
 
-  async findAll(): Promise<Bounty[]> {
-    return this.bountyRepository.find();
-  }
+  async create(createBountyDto: CreateBountyDto): Promise<Bounty> {
+    const planet = await this.planetRepository.findOneBy({
+      id: createBountyDto.planetId,
+    });
 
-  async findOne(id: number): Promise<Bounty | null> {
-    return this.bountyRepository.findOneBy({ id });
-  }
+    if (!planet) {
+      throw new NotFoundException('Planet not found');
+    }
 
-  async create(target: string, reward: number): Promise<Bounty> {
+    if (planet.destroyed) {
+      throw new BadRequestException(
+        'Cannot post a bounty on a destroyed planet',
+      );
+    }
+
     const bounty = this.bountyRepository.create({
-      target,
-      reward,
-      status: 'OPEN',
+      targetName: createBountyDto.targetName,
+      reward: createBountyDto.reward,
+      planet,
     });
 
     return this.bountyRepository.save(bounty);
   }
 
-  async updateStatus(id: number): Promise<Bounty | null> {
-    const bounty = await this.findOne(id);
-    if (!bounty) return null;
+  async findAll(): Promise<Bounty[]> {
+    return this.bountyRepository.find({
+      relations: ['planet'],
+    });
+  }
 
-    bounty.status = 'CLAIMED';
+  async findOne(id: number): Promise<Bounty> {
+    const bounty = await this.bountyRepository.findOne({
+      where: { id },
+      relations: ['planet'],
+    });
+
+    if (!bounty) {
+      throw new NotFoundException('Bounty not found');
+    }
+
+    return bounty;
+  }
+
+  async updateStatus(id: number, status: string): Promise<Bounty> {
+    const bounty = await this.findOne(id);
+    bounty.status = status;
     return this.bountyRepository.save(bounty);
   }
 }

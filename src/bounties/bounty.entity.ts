@@ -1,4 +1,10 @@
-import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  ManyToOne,
+} from 'typeorm';
+import { Planet } from '../planets/planet.entity/planet.entity';
 
 @Entity()
 export class Bounty {
@@ -6,11 +12,17 @@ export class Bounty {
   id: number;
 
   @Column()
-  target: string;
+  targetName: string;
 
   @Column()
   reward: number;
 
   @Column({ default: 'OPEN' })
-  status: 'OPEN' | 'CLAIMED';
+  status: string;
+
+  @ManyToOne(() => Planet, (planet) => planet.bounties, {
+    eager: false,
+    onDelete: 'CASCADE',
+  })
+  planet: Planet;
 }

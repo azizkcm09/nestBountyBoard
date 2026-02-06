@@ -1,10 +1,13 @@
-import { IsString, IsInt, Min } from 'class-validator';
+import { IsInt, IsNotEmpty, Min } from 'class-validator';
 
 export class CreateBountyDto {
-  @IsString()
-  target: string;
+  @IsNotEmpty()
+  targetName: string;
 
   @IsInt()
   @Min(1000)
   reward: number;
+
+  @IsInt()
+  planetId: number;
 }

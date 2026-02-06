@@ -7,7 +7,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
 import { Bounty } from './bounty.entity';
-import { Planet } from '../planets/planet.entity/planet.entity';
+import { Planet } from '../planets/planet.entity';
 import { CreateBountyDto } from './dto/create-bounty.dto';
 
 @Injectable()

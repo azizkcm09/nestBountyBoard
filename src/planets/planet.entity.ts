@@ -1,5 +1,5 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
-import { Bounty } from '../../bounties/bounty.entity';
+import { Bounty } from '../bounties/bounty.entity';
 
 @Entity()
 export class Planet {

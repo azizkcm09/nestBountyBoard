@@ -4,7 +4,7 @@ import {
   Column,
   ManyToOne,
 } from 'typeorm';
-import { Planet } from '../planets/planet.entity/planet.entity';
+import { Planet } from '../planets/planet.entity';
 
 @Entity()
 export class Bounty {

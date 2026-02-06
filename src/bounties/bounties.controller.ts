@@ -8,23 +8,23 @@ export class BountiesController {
   constructor(private readonly bountiesService: BountiesService) {}
 
   @Get()
-  findAll() {
-    return this.bountiesService.findAll();
+  async findAll() {
+    return await this.bountiesService.findAll();
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.bountiesService.findOne(Number(id));
+  async findOne(@Param('id') id: string) {
+    return await this.bountiesService.findOne(Number(id));
   }
 
   @Post()
-  create(@Body() dto: CreateBountyDto) {
-    return this.bountiesService.create(dto.target, dto.reward);
+  async create(@Body() dto: CreateBountyDto) {
+    return await this.bountiesService.create(dto.target, dto.reward);
   }
 
   @UseGuards(HunterRankGuard)
   @Patch(':id/claim')
-  claim(@Param('id') id: string) {
-    return this.bountiesService.updateStatus(Number(id));
+  async claim(@Param('id') id: string) {
+    return await this.bountiesService.updateStatus(Number(id));
   }
 }

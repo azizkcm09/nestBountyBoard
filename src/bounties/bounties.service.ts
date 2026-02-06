@@ -1,36 +1,38 @@
 import { Injectable } from '@nestjs/common';
-import { Bounty } from './bounty.interface';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { Bounty } from './bounty.entity';
 
 @Injectable()
 export class BountiesService {
-  private bounties: Bounty[] = [];
-  private idCounter = 1;
+  constructor(
+    @InjectRepository(Bounty)
+    private readonly bountyRepository: Repository<Bounty>,
+  ) {}
 
-  findAll(): Bounty[] {
-    return this.bounties;
+  async findAll(): Promise<Bounty[]> {
+    return this.bountyRepository.find();
   }
 
-  findOne(id: number): Bounty | undefined {
-    return this.bounties.find(b => b.id === id);
+  async findOne(id: number): Promise<Bounty | null> {
+    return this.bountyRepository.findOneBy({ id });
   }
 
-  create(target: string, reward: number): Bounty {
-    const bounty: Bounty = {
-      id: this.idCounter++,
+  async create(target: string, reward: number): Promise<Bounty> {
+    const bounty = this.bountyRepository.create({
       target,
       reward,
       status: 'OPEN',
-    };
+    });
 
-    this.bounties.push(bounty);
-    return bounty;
+    return this.bountyRepository.save(bounty);
   }
 
-  updateStatus(id: number): Bounty | undefined {
-    const bounty = this.findOne(id);
-    if (bounty) {
-      bounty.status = 'CLAIMED';
-    }
-    return bounty;
+  async updateStatus(id: number): Promise<Bounty | null> {
+    const bounty = await this.findOne(id);
+    if (!bounty) return null;
+
+    bounty.status = 'CLAIMED';
+    return this.bountyRepository.save(bounty);
   }
 }

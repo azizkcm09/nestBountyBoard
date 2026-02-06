@@ -1,11 +1,16 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
+import { TypeOrmModule } from '@nestjs/typeorm';
 import { BountiesModule } from './bounties/bounties.module';
 
 @Module({
-  imports: [BountiesModule],
-  controllers: [AppController],
-  providers: [AppService],
+  imports: [
+    TypeOrmModule.forRoot({
+      type: 'sqlite',
+      database: 'holocron.db',
+      entities: [__dirname + '/**/*.entity{.ts,.js}'],
+      synchronize: true, // ⚠️ dev only
+    }),
+    BountiesModule,
+  ],
 })
 export class AppModule {}
